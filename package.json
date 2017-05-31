@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "chrome-serialport": "^0.1.2"
+  },
+  "directories": {},
+  "license": "MIT",
+  "name": "pos-test",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "scripts": {
+    "test": "webpack pos.js pos.bundle.js"
+  },
+  "version": "0.0.1"
+}
