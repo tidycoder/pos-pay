@@ -78,19 +78,19 @@ function TlvBlockForChar(tag, char) {
 
 function TlvBlockForString(tag, str) {
 
-	var data = new ArrayBuffer(5);
+	var data = new ArrayBuffer(4 + str.length);
 
-  let view = new Uint16Array(data, 0, 2);
-  view[0] = tag;
-  view[1] = str.length;
+  	let view = new Uint16Array(data, 0, 2);
+  	view[0] = tag;
+  	view[1] = str.length;
 
-  // The rest just gets the data copied into it.
-  view = new Uint8Array(data, 4);
-  for (var i = 0; i < str.length; ++i) {
-  	view[i] = str[0].charCodeAt(0);
-  }
+  	// The rest just gets the data copied into it.
+  	view = new Uint8Array(data, 4);
+  	for (var i = 0; i < str.length; ++i) {
+  		view[i] = str[0].charCodeAt(0);
+  	}
 
-  return data;
+  	return data;
 }
 
 
@@ -100,17 +100,17 @@ function packageData(dataBuffer) {
 
 	var buffer = new ArrayBuffer(totalLength);
 
-  var view = new Uint8Array(buffer);
-  view[0] = 0x02;  // STX
+  	var view = new Uint8Array(buffer);
+  	view[0] = 0x02;  // STX
 
-  var view2 = new Uint16Array(buffer, 1);
-  view2[0] = dataLength; // LEN
+  	var view2 = new DataView(buffer, 1);
+  	view2.setUint16(0, dataLength); // LEN
 
-  view.set(dataBuffer, 3); // DATA
+  	view.set(dataBuffer, 3); // DATA
 
-  view[dataLength + 3] = 0x03; // ETX
+  	view[dataLength + 3] = 0x03; // ETX
 
-  view[dataLength + 4] = clacLRC(dataBuffer); // LRC
+  	view[dataLength + 4] = clacLRC(dataBuffer); // LRC
 
 	return buffer;
 } 
