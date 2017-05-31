@@ -9,26 +9,52 @@ var decodePosData = require('./pos_recv');
 
 var encodePosData = require('./pos_send');
 
+var port;
+var port2;
 
 var payElement = document.getElementById("test");
+
+    SerialPortFactory.isInstalled(function(err){
+    	console.log("is installed : " + err);
+    });
+
+
+    SerialPortFactory.list(function(err, data){
+      console.log(data);
+
+    });
 
 
 var exists = 'COM5';
 var exists2 = 'COM6';
-var port2 = new SerialPort(exists2, {}, function () {
- 	port2.once('data', function(recvData) {
- 	alert("success receive data!!");
- 		console.log(recvData);
+
+
+port2 = new SerialPort(exists2, {}, true, function () {
+	port2.once('data', function(recvData) {
+	 	alert("success receive data!!");
+	 	console.log(recvData);
   	});
 });
 
+
 payElement.onclick = function() {
 
-	var port = new SerialPort(exists, function() {
-        port.write(encodePosData(), function(err) {
-         	port.close();
-        })
-    })
+	if (!port) {
+
+		port = new SerialPort(exists, {}, true, function() {
+			console.log("serial port opened!");
+		});
+
+	}
+	else {
+			port.write( new Buffer(encodePosData()), function(err) {
+		    	if (err) {
+		    		console.log("error: " + err);
+		    	}
+		    })
+
+	}
+
 
 }
 

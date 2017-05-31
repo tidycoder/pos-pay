@@ -8,7 +8,7 @@
   "optionalDependencies": {},
   "readme": "ERROR: No README data found!",
   "scripts": {
-    "test": "webpack pos.js pos.bundle.js"
+    "test": "webpack pos.js pos.bundle.js && beefy --index=index.html 8080"
   },
   "version": "0.0.1"
 }

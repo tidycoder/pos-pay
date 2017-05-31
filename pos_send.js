@@ -39,7 +39,7 @@ function encodePos() {
 
 	var offset = 0;
 	for (var j = 0; j < blocks.length; ++j) {
-		view.set(blocks[j], offset);
+		view.set(new Uint8Array(blocks[j]), offset);
 		offset += blocks[j].byteLength;
 	}
 
@@ -95,7 +95,7 @@ function TlvBlockForString(tag, str) {
 
 
 function packageData(dataBuffer) {
-	var dataLength = data.byteLength;
+	var dataLength = dataBuffer.byteLength;
 	var totalLength = dataLength + 5;
 
 	var buffer = new ArrayBuffer(totalLength);
@@ -106,11 +106,11 @@ function packageData(dataBuffer) {
   	var view2 = new DataView(buffer, 1);
   	view2.setUint16(0, dataLength); // LEN
 
-  	view.set(dataBuffer, 3); // DATA
+  	view.set(new Uint8Array(dataBuffer), 3); // DATA
 
   	view[dataLength + 3] = 0x03; // ETX
 
-  	view[dataLength + 4] = clacLRC(dataBuffer); // LRC
+  	view[dataLength + 4] = calcLRC(dataBuffer); // LRC
 
 	return buffer;
 } 
@@ -119,8 +119,8 @@ function calcLRC(dataBuffer) {
 	var dataLength = dataBuffer.byteLength;
 	var buffer = new ArrayBuffer(dataLength + 2);
 
-	var view = new Uint16Array(buffer);
-	view[0] = dataLength;
+	var view = new DataView(buffer);
+	view.setUint16(0, dataLength);
 
 	view = new Uint8Array(buffer, 2);
 	view.set(dataBuffer);
