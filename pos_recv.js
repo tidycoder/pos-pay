@@ -40,8 +40,8 @@ function unpackage(packet) {
 	var view = new Uint8Array(packet, 0);
 	pkt.stx = view[0];
 
-	view = new Uint16Array(packet, 1);
-	pkt.dataLength = view[0];
+	view = new DataView(packet, 1);
+	pkt.dataLength = view.getUint16(0);
 
 	view = new Uint8Array(packet, 3, pkt.dataLength);
 	pkt.dataBuffer = view.buffer;
@@ -89,10 +89,10 @@ function TlvBlocks(dataBuffer) {
 	var offset = 0;
 
 	while (offset < dataBuffer.byteLength) {
-		var view = new Uint16Array(dataBuffer, offset);
+		var view = new DataView(dataBuffer, offset);
 		var block = {};
-		block.tag = view[0];
-		block.dataLength = view[1];
+		block.tag = view.getUint16(0);
+		block.dataLength = view.getUint16(2);
 		
 		view = new Uint8Array(dataBuffer, offset + 4);
 		if (block.dataLength == 1) {
@@ -104,7 +104,7 @@ function TlvBlocks(dataBuffer) {
 			}
 		}
 
-		offset += 4 + block.dataLength;
+		offset += (4 + block.dataLength);
 	}
 
 	return blocks;
