@@ -50,8 +50,8 @@ function concatBuffers(arr) {
 
 function processRecv(recv_buffer){
 	var view = new DataView(recv_buffer.buffer);
-	var lenth = view.getUint16(1);
-	if (recv_buffer.length >= length){
+	var length = view.getUint16(1);
+	if (recv_buffer.length >= length + 5){
 		var blocks = decodePosData(recv_buffer.buffer);
 		console.log(blocks);
 	}
@@ -62,7 +62,7 @@ function processRecv(recv_buffer){
 port2 = new SerialPort(exists2, {}, true, function () {
 	var recv_buffer = new Uint8Array(0);
 	port2.addListener('data', function(recvData) {
-	 	alert("success receive data!!");
+
 	 	console.log(recvData);
 	 	recv_buffer = concatBuffers(recv_buffer, recvData);
 

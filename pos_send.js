@@ -51,43 +51,43 @@ function encodePos() {
 function TlvBlockForUint8(tag, uint8) {
 	var data = new ArrayBuffer(5);
 
-  let view = new Uint16Array(data, 0, 2);
-  view[0] = tag;
-  view[1] = 0x0001;
+  	let view = new DataView(data);
+  	view.setUint16(0, tag);
+  	view.setUint16(2, 0x01);
 
-  // The rest just gets the data copied into it.
-  view = new Uint8Array(data, 4);
-  view[0] = uint8;
+  	// The rest just gets the data copied into it.
+  	view = new Uint8Array(data, 4);
+  	view[0] = uint8;
 
-  return data;
+  	return data;
 }
 
 function TlvBlockForChar(tag, char) {
 	var data = new ArrayBuffer(5);
 
-  let view = new Uint16Array(data, 0, 2);
-  view[0] = tag;
-  view[1] = 0x0001;
+  	let view = new DataView(data);
+  	view.setUint16(0, tag);
+  	view.setUint16(2, 0x01);
 
-  // The rest just gets the data copied into it.
-  view = new Uint8Array(data, 4);
-  view[0] = char.charCodeAt(0);
+  	// The rest just gets the data copied into it.
+  	view = new Uint8Array(data, 4);
+  	view[0] = char.charCodeAt(0);
 
-  return data;
+  	return data;
 }
 
 function TlvBlockForString(tag, str) {
 
 	var data = new ArrayBuffer(4 + str.length);
 
-  	let view = new Uint16Array(data, 0, 2);
-  	view[0] = tag;
-  	view[1] = str.length;
+  	let view = new DataView(data);
+  	view.setUint16(0, tag);
+  	view.setUint16(2, str.length);
 
   	// The rest just gets the data copied into it.
   	view = new Uint8Array(data, 4);
   	for (var i = 0; i < str.length; ++i) {
-  		view[i] = str[0].charCodeAt(0);
+  		view[i] = str[i].charCodeAt(0);
   	}
 
   	return data;
@@ -117,16 +117,18 @@ function packageData(dataBuffer) {
 
 function calcLRC(dataBuffer) {
 	var dataLength = dataBuffer.byteLength;
-	var buffer = new ArrayBuffer(dataLength + 2);
 
-	var view = new DataView(buffer);
-	view.setUint16(0, dataLength);
+	var lengthBuffer = new Uint16Array(1);
+	lengthBuffer[0] = dataLength;
 
-	view = new Uint8Array(buffer, 2);
-	view.set(dataBuffer);
 
 	var lrc = 0;
-	view = new Uint8Array(buffer);
+	var view = new Uint8Array(lengthBuffer);
+	for (var i = 0; i < view.length; ++i) {
+		lrc = lrc^view[i];
+	}
+
+	view = new Uint8Array(dataBuffer);
 	for (var i = 0; i < view.length; ++i) {
 		lrc = lrc^view[i];
 	}

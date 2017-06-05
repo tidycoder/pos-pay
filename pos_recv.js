@@ -44,7 +44,7 @@ function unpackage(packet) {
 	pkt.dataLength = view.getUint16(0);
 
 	view = new Uint8Array(packet, 3, pkt.dataLength);
-	pkt.dataBuffer = view.buffer;
+	pkt.dataBuffer = (new Uint8Array(view)).buffer;
 
 	view = new Uint8Array(packet, pkt.dataLength + 3, 2);
 	pkt.etx = view[0];
@@ -58,6 +58,8 @@ function unpackage(packet) {
 		lrc = lrc^view[i];
 	}
 	pkt.calc_lrc = lrc;
+
+	return pkt;
 }
 
 function checkPkt(pkt) {
@@ -105,6 +107,7 @@ function TlvBlocks(dataBuffer) {
 		}
 
 		offset += (4 + block.dataLength);
+		blocks.push(block);
 	}
 
 	return blocks;
