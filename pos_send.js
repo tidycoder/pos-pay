@@ -93,6 +93,18 @@ function TlvBlockForString(tag, str) {
   	return data;
 }
 
+function int2bcd(length) {
+  	// LEN
+  	var hex1 = Math.floor(length / 1000);
+  	var hex2 = Math.floor( (length % 1000) / 100 );
+  	var hex3 = Math.floor( (length % 100) / 10);
+  	var hex4 = length % 10;
+
+  	var highByte = (hex1 << 4) + hex2;
+  	var lowByte = (hex3 << 4) + hex4;
+
+  	return (highByte << 8) + lowByte;
+}
 
 function packageData(dataBuffer) {
 	var dataLength = dataBuffer.byteLength;
@@ -103,8 +115,9 @@ function packageData(dataBuffer) {
   	var view = new Uint8Array(buffer);
   	view[0] = 0x02;  // STX
 
+  	// LEN
   	var view2 = new DataView(buffer, 1);
-  	view2.setUint16(0, dataLength); // LEN
+  	view2.setUint16(0, int2bcd(dataLength));
 
   	view.set(new Uint8Array(dataBuffer), 3); // DATA
 
@@ -117,21 +130,23 @@ function packageData(dataBuffer) {
 
 function calcLRC(dataBuffer) {
 	var dataLength = dataBuffer.byteLength;
-
-	var lengthBuffer = new Uint16Array(1);
-	lengthBuffer[0] = dataLength;
+ 	var bcd = int2bcd(dataLength);
+ 	var highBCD = bcd >> 8;
+ 	var lowBCD = bcd & 0xff;
 
 
 	var lrc = 0;
-	var view = new Uint8Array(lengthBuffer);
-	for (var i = 0; i < view.length; ++i) {
-		lrc = lrc^view[i];
-	}
+	lrc = lrc ^ highBCD;
+	lrc = lrc ^ lowBCD;
 
 	view = new Uint8Array(dataBuffer);
 	for (var i = 0; i < view.length; ++i) {
 		lrc = lrc^view[i];
 	}
+
+	lrc = lrc^3;
+
+	console.log(lrc);
 	return lrc;
 }
 

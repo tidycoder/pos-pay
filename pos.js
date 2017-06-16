@@ -24,8 +24,8 @@ SerialPortFactory.list(function(err, data){
 });
 
 
-var exists = 'COM5';
-var exists2 = 'COM6';
+var exists = 'COM1';
+//var exists2 = 'COM6';
 
 function concatBuffers(arr) {
 
@@ -59,17 +59,6 @@ function processRecv(recv_buffer){
 }
 
 
-port2 = new SerialPort(exists2, {}, true, function () {
-	var recv_buffer = new Uint8Array(0);
-	port2.addListener('data', function(recvData) {
-
-	 	console.log(recvData);
-	 	recv_buffer = concatBuffers(recv_buffer, recvData);
-
-	 	processRecv(recv_buffer);
-  	});
-});
-
 
 payElement.onclick = function() {
 
@@ -81,7 +70,9 @@ payElement.onclick = function() {
 
 	}
 	else {
-		port.write( new Buffer(encodePosData()), function(err) {
+		var data =  new Buffer(encodePosData());
+		console.log(data);
+		port.write(new Buffer(encodePosData()), function(err) {
 	    	if (err) {
 	    		console.log("error: " + err);
 	    	}
