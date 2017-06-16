@@ -34,6 +34,16 @@ function decode(packet) {
 	return blocks;
 }
 
+function bcd2int(bcd) {
+	var highByte = bcd >> 8;
+	var lowByte = bcd & 0xff;
+	var hex1 = highByte >> 4;
+	var hex2 = highByte & 0x0f;
+	var hex3 = lowByte >> 4;
+	var hex4 = lowByte & 0x0f;
+	return hex1*1000 + hex2*100 + hex3*10 + hex4;
+}
+
 function unpackage(packet) {
 	var pkt = {};
 
@@ -41,7 +51,8 @@ function unpackage(packet) {
 	pkt.stx = view[0];
 
 	view = new DataView(packet, 1);
-	pkt.dataLength = view.getUint16(0);
+	pkt.bcd = view.getUint16(0);
+	pkt.dataLength = bcd2int(pkt.bcd);
 
 	view = new Uint8Array(packet, 3, pkt.dataLength);
 	pkt.dataBuffer = (new Uint8Array(view)).buffer;
