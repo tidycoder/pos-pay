@@ -22,12 +22,12 @@ TAG	Length(BYTE)	Value
 function decode(packet) {
 
 	var pkt = unpackage(packet);
-
+	console.log(pkt);
 	var res = checkPkt(pkt);
 
-	if (res.error != 0) {
-		console.log("unpackage pos data error: " + res.error);
-	}
+//	if (res.error != 0) {
+//		console.log("unpackage pos data error: " + res.error);
+//	}
 
 	var blocks = TlvBlocks(pkt.dataBuffer);
 
@@ -70,6 +70,7 @@ function unpackage(packet) {
 	}
 	pkt.calc_lrc = lrc;
 
+
 	return pkt;
 }
 
@@ -85,13 +86,13 @@ function checkPkt(pkt) {
 		res.error = -2;
 	}
 
-	if (pkt.pktLength != pkt.dataBuffer.byteLength + 5) {
-		res.error = -3;
-	}
+//	if (pkt.pktLength != pkt.dataBuffer.byteLength + 5) {
+//		res.error = -3;
+//	}
 
-	if (pkt.lrc != pkt.calc_lrc) {
-		res.error = -4;
-	}
+//	if (pkt.lrc != pkt.calc_lrc) {
+//		res.error = -4;
+//	}
 
 	return res;
 }

@@ -24,7 +24,7 @@ SerialPortFactory.list(function(err, data){
 });
 
 
-var exists = 'COM1';
+var exists = 'COM9';
 //var exists2 = 'COM6';
 
 function concatBuffers(arr) {
@@ -48,9 +48,21 @@ function concatBuffers(arr) {
   return u8;
 }
 
+function bcd2int(bcd) {
+	var highByte = bcd >> 8;
+	var lowByte = bcd & 0xff;
+	var hex1 = highByte >> 4;
+	var hex2 = highByte & 0x0f;
+	var hex3 = lowByte >> 4;
+	var hex4 = lowByte & 0x0f;
+	return hex1*1000 + hex2*100 + hex3*10 + hex4;
+}
+
+
 function processRecv(recv_buffer){
 	var view = new DataView(recv_buffer.buffer);
-	var length = view.getUint16(1);
+	var length = bcd2int(view.getUint16(1));
+	console.log("processRecv : " + length);
 	if (recv_buffer.length >= length + 5){
 		var blocks = decodePosData(recv_buffer.buffer);
 		console.log(blocks);
@@ -59,6 +71,7 @@ function processRecv(recv_buffer){
 }
 
 
+var recv_buffer = new ArrayBuffer(0);
 
 payElement.onclick = function() {
 
@@ -66,6 +79,11 @@ payElement.onclick = function() {
 
 		port = new SerialPort(exists, {}, true, function() {
 			console.log("serial port opened!");
+			port.addListener('data', function(recvData) {
+ 	 			console.log(recvData);
+ 	 			recv_buffer = concatBuffers(recv_buffer, recvData);
+ 	 			processRecv(recv_buffer);
+ 	 		})
 		});
 
 	}
