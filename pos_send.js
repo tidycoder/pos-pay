@@ -24,7 +24,7 @@ function encodePos() {
 
 	var blocks = [];
 
-	blocks.push(TlvBlockForChar(0x0900, 'A'));
+	blocks.push(TlvBlockForChar(0x0900, 'B'));
 	blocks.push(TlvBlockForUint8(0x0901, 0x01));
 	blocks.push(TlvBlockForString(0x0902, '1'));
 	blocks.push(TlvBlockForString(0x0903, '1020000333000020001'));

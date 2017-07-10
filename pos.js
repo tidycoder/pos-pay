@@ -19,13 +19,23 @@ SerialPortFactory.isInstalled(function(err){
 });
 
 
+
+var exists = null;
 SerialPortFactory.list(function(err, data){
   console.log(data);
+  var r = new RegExp('Landi*');
+  for (var i = 0; i < data.length; ++i) {
+  	if (r.test(data[i].manufacturer)) {
+  		exists = data[i].comName;
+  		break;
+  	}
+  }
+  if (exists == null) {
+  	alert('no available com!');
+  } else {
+  	console.log('use com :' + exists);
+  }
 });
-
-
-var exists = 'COM9';
-//var exists2 = 'COM6';
 
 function concatBuffers(arr) {
 
