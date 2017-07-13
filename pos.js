@@ -1,6 +1,8 @@
 
 var SerialPortFactory = require('chrome-serialport');
-SerialPortFactory.extensionId = 'blpiikpknmobbfcmohnbmkjcobihpgaa';
+//SerialPortFactory.extensionId = 'blpiikpknmobbfcmohnbmkjcobihpgaa';
+SerialPortFactory.extensionId = 'gmgafhiagfafhfdgjobcphfgdcnndcjc';
+
 
 
 var SerialPort = SerialPortFactory.SerialPort;
@@ -69,17 +71,110 @@ function bcd2int(bcd) {
 }
 
 
+
+
+/*
+0x0900	0x0001	"银行卡：A （大写A的ascii码） 
+微信：B （大写B的ascii码）
+支付宝：C （大写C的ascii码）"
+0x0901	0x0001	"0X01：消费 
+"
+0x0902	LLVar	交易金额（最小位分）举例：‘200000’长度为6，表示2000元
+0x0903	LLVar	订单号 （最长为32的字符串）
+0x0904	LLVar	商户号
+0x0905	LLVar	商户名
+0x0906	LLVar	终端号
+0x0907	LLVar	收单行号
+0x0908	LLVar	发卡行号
+0x0909	LLVar	发卡行名
+0x090A	LLVar	POS中心号
+0x090B	LLVar	卡号
+0x090C	LLVar	刷卡类型（S、M、I）
+0x090D	LLVar	批次号
+0x090E	LLVar	凭证号
+0x090F	LLVar	授权码
+0x0910	LLVAR	参考号
+0x0911	LLVAR	交易日期
+0x0912	LLVar	交易时间
+0x0913	LLVAR	备注信息（reference）
+0x0914	LLVAR	返回码
+0x0915	LLVar	返回码中文解释  
+0x091A	LLVar	(前6位作收银票号需打印，后14位条码号在底部打印条码)
+0x091B	LLVar	卡片有效期
+0x091C	LLVar	电子现金余额，标准查询余额
+0x091D	LLVar	总计金额
+0x091E	LLVar	门店号
+0x091F	LLVar	POS机号
+*/
+function makePosResult(blocks) {
+	var result = {};
+	for (var i = 0; i < blocks.length; ++i) {
+		var block = blocks[i];
+		switch(blocks.tag) {
+			case 0x0900:
+				result.payTpe = block.value;
+				break;
+			case 0x0902:
+				result.price = block.value;
+				break;
+			case 0x0903:
+				result.purchaseNumber = block.value;
+				break;
+			case 0x0904:
+				result.merchantNo = block.value;
+				break;
+			case 0x0905:
+				result.merchantName = block.value;
+				break;
+			case 0x0906:
+				result.terminalNo = block.value;
+				break;
+			case 0x0908:
+				result.issuer = block.value;
+				break;
+			case 0x0909:
+				result.issuerName = block.value;
+				break;
+			case 0x090B:
+				result.cardNo = block.value;
+				break;
+			case 0x090D:
+				result.batchNo = block.value;
+				break;
+			case 0x090E:
+				result.voucherNo = block.value;
+				break;
+			case 0x0910:
+				result.referNo = block.value;
+				break;
+			case 0x0911:
+				result.date = block.value;
+				break;
+			case 0x0912:
+				result.time = block.value;
+				break;
+			case 0x0914:
+				result.returnCode = block.value;
+				break;
+			default:
+				console.log("pos result not handled:" + block.tag);
+				break;
+		}
+	}
+	return result;
+}
+
 function processRecv(recv_buffer){
 	var view = new DataView(recv_buffer.buffer);
 	var length = bcd2int(view.getUint16(1));
 	console.log("processRecv : " + length);
 	if (recv_buffer.length >= length + 5){
 		var blocks = decodePosData(recv_buffer.buffer);
+		var result = makePosResult(blocks);
 		console.log(blocks);
+		console.log(result);
 	}
-
 }
-
 
 var recv_buffer = new ArrayBuffer(0);
 
@@ -106,7 +201,6 @@ payElement.onclick = function() {
 	    	}
 	    })
 	}
-
 
 }
 
